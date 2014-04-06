@@ -22,7 +22,7 @@ my $dirPath;
 GetOptions('help|h' => \$help,
     'm' => \$htmloutput,
     'f=s@' => \@filenames),
-    'd' => \$dirPath;
+    'd' => \$dirName;
 
 #if help or no files given
 if ($help or @filenames == 0)
@@ -37,7 +37,7 @@ if ($help or @filenames == 0)
 	print("Options:\n==========\n\n");
     	print("-h|help ........ Show help\n");
     	print("-f filename .... File(s) to extract location info from\n");
-    	print("-d pathToDir ... Extract location info of files from a directory\n");
+    	print("-d dirName ..... Extract location info of files from a directory\n");
     	print("-m ............. Output location info to HTML file\n");
 
     	print("\nExamples:\n==========\n\n");
