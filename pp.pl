@@ -16,11 +16,13 @@ my $help = '';
 my $htmloutput = '';
 my @filenames;
 my %file_listing;
+my $dirPath;
 
 #parse options
 GetOptions('help|h' => \$help,
     'm' => \$htmloutput,
-    'f=s@' => \@filenames);
+    'f=s@' => \@filenames),
+    'd' => \$dirPath;
 
 #if help or no files given
 if ($help or @filenames == 0)
@@ -35,11 +37,12 @@ if ($help or @filenames == 0)
 	print("Options:\n==========\n\n");
     	print("-h|help ........ Show help\n");
     	print("-f filename .... File(s) to extract location info from\n");
+    	print("-d pathToDir ... Extract location info of files from a directory\n");
     	print("-m ............. Output location info to HTML file\n");
 
     	print("\nExamples:\n==========\n\n");
 	print("pp.pl -f image.jpg");
-    	print("\nExample: pp.pl -f image.jpg -f /examples/RIT.jpg -html\n\n");
+    	print("\nExample: pp.pl -f image.jpg -f /examples/RIT.jpg -m\n\n");
     	    
     	exit;
 }
