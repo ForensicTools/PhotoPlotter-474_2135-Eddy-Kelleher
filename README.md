@@ -35,6 +35,8 @@ Options:
 
 -f filename .... File(s) to extract location info from
 
+-d dirname ..... Directory to extract files from
+
 -m ............. Output location info to HTML file
 
 Examples: 
