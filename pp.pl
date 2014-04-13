@@ -60,3 +60,24 @@ foreach my $name (@filenames)
     	if($exif = ExtractInfo($file);
     }
 }
+
+# If html AND we actually have files
+if ( ($htmloutput) && (keys(%file_listing) > 0) )
+{    
+    #timestamped output filename
+    my $htmloutputfile = "pp-output-".time.".html";
+
+    open(my $html_output_file, ">".$htmloutputfile) || die("Unable to open $htmloutputfile for writing\n");
+
+    my $htmltable = HTML::QuickTable->new(border => 1, labels => 1);
+
+    # Added preceding "/" to "Filename" so that the HTML::QuickTable sorting doesn't result in
+    # the column headings being re-ordered after / below a filename beginning with a "\". 
+    $file_listing{"/Filename"} = "GoogleMaps Link";
+
+    print $html_output_file "<HTML>";
+    print $html_output_file $htmltable->render(\%file_listing);
+    print $html_output_file "<\/HTML>";
+
+    close($htmloutputfile);
+}
