@@ -43,3 +43,16 @@ if ($help or @filenames == 0)
     	    
     	exit;
 }
+
+foreach my $name (@filenames)
+{
+    my $file = shift;
+
+    #check to see if the file exists
+    if (-e $filename)
+    {
+    	my $exif = Image::ExifTool->new()
+    	
+    	if($exif = ExtractInfo($file);
+    }
+}
