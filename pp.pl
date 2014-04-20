@@ -109,3 +109,23 @@ ub ProcessFilename
 	                }
 	                
 	                return 1;
+                        }
+                        else
+                        {
+
+                         print("\n$filename : No Location Information Available");
+                         return 0;
+                         }
+                        }
+                        else
+                        {
+                         print("\n$filename : Cannot Extract Information");
+                         return 0;
+                        }
+                        }
+                        else
+                        {
+                        print("\n$filename : Does not Exist");
+                        return 0;
+                        }
+           }
