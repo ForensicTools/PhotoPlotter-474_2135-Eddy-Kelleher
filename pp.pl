@@ -1,131 +1,126 @@
 #!/usr/bin/perl
+# Unix Forensics Final Project
+
+# Jack Kelleher & Joshua Eddy
 
 use strict;
 use warnings;
 
-push(@INC, "/home/toor/.cpan/build/"); 	#having issues using this
-
-
 #modules to use
-#use Image::ExifTool;			#issues with this module 
-#use Image::ExifTool::Location;		#issues with this module
+use Image::ExifTool;
+use Image::ExifTool::Location;
 use Getopt::Long;
 use HTML::QuickTable;
 
 my $help = '';
-my $htmloutput = '';
-my @filenames;
+my $map = '';
+my @files;
 my %file_listing;
-my $dirPath;
 
-#parse options
+#parse flags
 GetOptions('help|h' => \$help,
-    'm' => \$htmloutput,
-    'f=s@' => \@filenames),
-    'd' => \$dirName;
+	'm' => \$map,
+	'f=s@' => \@files);
 
-#if help or no files given
-if ($help or @filenames == 0)
+#if help or no files listed
+if($help || @files == 0)
 {
-	#print usage info
-    	print("\npp.pl v1.0\n");
-    	print("==========\n\n");
-    	print("A tool to analyze photo(s) and print the location of them to STDOUT. It will also have an option to write the location of the photo(s) to an HTML file with links to the location on Google Maps.\n");
+	print("\npp.pl v1.0\n");
+	print("Perl script to extract location info from images and plot\n"); 
+	print("on Google maps if the image has stored GPS lat/long info.\n");
 
-    	print("\nUsage:\n==========\n\n");
-	print("pp.pl <options>\n\n");
-	print("Options:\n==========\n\n");
-    	print("-h|help ........ Show help\n");
-    	print("-f filename .... File(s) to extract location info from\n");
-    	print("-d dirName ..... Extract location info of files from a directory\n");
-    	print("-m ............. Output location info to HTML file\n");
+	print("\nUsage: pp.pl [-h|help] [-f filename] [-m]\n");
+	print("-h|help ....... Prints help information for the program.\n");
+	print("-f filename ... File(s) to extract lat/long from\n");
+	print("-m ............ Output results to a timestamped html file in current directory\n");
 
-    	print("\nExamples:\n==========\n\n");
-	print("pp.pl -f image.jpg");
-    	print("\nExample: pp.pl -f image.jpg -f /examples/RIT.jpg -m\n\n");
-    	    
-    	exit;
+	print("\nExample: pp.pl -f /pictures/example.jpg");
+	print("\nExample: pp.pl -f /pictures/example.jpg -f/pictures/photo.jpg -m\n\n");
+	print("Note: Outputs results to STDOUT and if specified, to timestamped html file\n");
+	print("in the current directory\n\n");
+	print("Nomenclature: pp-output-time.html\n\n");
+    
+	exit;
 }
 
 
-foreach my $name (@filenames)
-{
-    my $file = shift;
+# Main processing loop
+print("\npp.pl v1.0\n");
 
-    #check to see if the file exists
-    if ( -e $filename )
-    {
-    	my $exif = Image::ExifTool->new()
-    	
-    	if( $exif = ExtractInfo($file );
-    }
+foreach my $name(@files)
+{
+	ProcessFile($name);
 }
 
-# If html AND we actually have files
-if ( ( $htmloutput ) && (keys( %file_listing ) > 0 ) )
+# If html output and photo contains location info
+if(($map) && (keys(%file_listing) > 0))
 {    
-    	#timestamped output filename
-	my $htmloutputfile = "pp-output-".time.".html";
+	#create timestamped file name
+	my $mapfile = "pp-output-".time.".html";
 
-    	open( my $html_output_file, ">".$htmloutputfile ) || die( "Unable to open $htmloutputfile for writing\n" );
 
-	#create HTML table
-	my $htmltable = HTML::QuickTable->new( border => 1, labels => 1 );
+	open(my $html_output_file, ">".$mapfile) || die("Unable to open $mapfile\n");
+
+	my $htmltable = HTML::QuickTable->new(border => 1, labels => 1);
 
 	# Added preceding "/" to "Filename" so that the HTML::QuickTable sorting doesn't result in
 	# the column headings being re-ordered after / below a filename beginning with a "\". 
-	$file_listing{ "/Filename" } = "GoogleMaps Link";
-	
-	print $html_output_file "<HTML>"
-	print $html_output_file $htmltable->render( \%file_listing );
+	$file_listing{"/Filename"} = "GoogleMaps Link";
+
+	print $html_output_file "<HTML>";
+	print $html_output_file $htmltable->render(\%file_listing);
 	print $html_output_file "<\/HTML>";
-	
-	close( $htmloutputfile );
+
+	close($mapfile);
 }
 
-ub ProcessFilename
+sub ProcessFile
 {
 	my $filename = shift;
-	
-	if (-e $filename) #file must exist
-	{
-	 	my $exif = Image::ExifTool->new();
-	        # Extract all info from existing image
-	        if ($exif->ExtractInfo($filename))
-	        {
-	            # Ensure all 4 GPS params are present 
-	            # ie GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef
-	            # The Ref values indicate North/South and East/West
-	            if ($exif->HasLocation()) 
-	            {
-	              	my ($lat, $lon) = $exif->GetLocation(); 
-	                
-	                print("\n$filename contains Lat: $lat, Long: $lon\n");
-	                print("URL: http://maps.google.com/maps?q=$lat,+$lon($filename)&iwloc=A&hl=en\n");
-	                
-	                if ($htmloutput) # save GoogleMaps URL to global hashmap indexed by filename
-	                {
-	                    $file_listing{$filename} = "<A HREF = \"http://maps.google.com/maps?q=$lat,+$lon($filename)&iwloc=A&hl=en\"> http://maps.google.com/maps?q=$lat,+$lon($filename)&iwloc=A&hl=en</A>";
-	                }
-	                
-	                return 1;
-                        }
-                        else
-                        {
 
-                         print("\n$filename : No Location Information Available");
-                         return 0;
-                         }
-                        }
-                        else
-                        {
-                         print("\n$filename : Cannot Extract Information");
-                         return 0;
-                        }
-                        }
-                        else
-                        {
-                        print("\n$filename : Does not Exist");
-                        return 0;
-                        }
-           }
+	#check if file exists
+	if (-e $filename)
+	{
+		my $exif = Image::ExifTool->new();
+		
+		# Extract all info from existing image
+		if ($exif->ExtractInfo($filename))
+		{
+			# Ensure all 4 GPS params are present 
+		        # ie GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef
+			# The Ref values indicate North/South and East/West
+			if ($exif->HasLocation()) 
+			{
+				my ($lat, $lon) = $exif->GetLocation(); 
+				print("\n$filename contains Lat: $lat, Long: $lon\n");
+				print("URL: http://maps.google.com/maps?q=$lat,+$lon($filename)&iwloc=A&hl=en\n");
+
+				if ($map)
+				{
+				# save GoogleMaps URL to global hashmap indexed by filename
+				$file_listing{$filename} = "<A HREF = \"http://maps.google.com/maps?q=$lat,+$lon($filename)&iwloc=A&hl=en\"> http://maps.google.com/maps?q=$lat,+$lon($filename)&iwloc=A&hl=en</A>";
+				}
+				
+				return 1;
+			}
+			#if no location info available
+			else
+			{
+				print("\n$filename : No location info available for this info, skipping...\n");
+				return 0;
+			}
+		}
+		#if unable to get location info
+		else
+		{
+			print("\n$filename : Cannot extract location Info for this photo, skipping...\n");
+			return 0;
+		}
+	}
+	#if file does not exist
+	else
+	{
+		print("\n$filename : does not exist, skipping...\n");
+		return 0;
+	}
+}
