@@ -35,6 +35,7 @@ Options:
 
 -f filename .... File(s) to extract location info from
 
+#to be added soon!
 -d dirname ..... Directory to extract files from
 
 -m ............. Output location info to HTML file
@@ -44,4 +45,4 @@ Examples:
 
 -pp.pl -f image.jpg
 
--pp.pl -f image.jpg -f /examples/RIT.jpg -html
+-pp.pl -f image.jpg -f /examples/RIT.jpg -m
